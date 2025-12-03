@@ -99,15 +99,15 @@ export const generateSmartFill = async (
     
     请根据指令生成需要变更的日期数据。
     
-    规则：
-    1. 仅返回 JSON 数组。不要包含 Markdown 代码块标记 (如 \`\`\`json)。
-    2. 格式示例：[{"date": "2024-05-20", "qty": 100}, {"date": "2024-05-21", "qty": 0}]
-    3. 如果用户想要“删除”、“清除”、“清空”或“取消”，请将 qty 设置为 0。
-    4. 根据当前起始日期推断具体日期。
+    【严格规则】
+    1. 仅返回 JSON 数组。
+    2. 严禁包含任何“好的”、“Okay”等开场白或结束语。
+    3. 严禁包含 Markdown 代码块标记 (如 \`\`\`json)。
+    4. 格式示例：[{"date": "2024-05-20", "qty": 100}, {"date": "2024-05-21", "qty": 0}]
+    5. 如果用户想要“删除”、“清除”、“清空”或“取消”，请将 qty 设置为 0。
+    6. 根据当前起始日期推断具体日期。
     `;
 
-    // 注意：Gemini 2.5 Flash 支持 responseMimeType，但为了兼容性，我们主要依靠 Prompt 约束 JSON
-    // 并在接收后进行清理
     const data = await callGeminiApi('gemini-2.5-flash', {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
@@ -118,11 +118,24 @@ export const generateSmartFill = async (
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) return [];
 
-    // 清理可能的 Markdown 标记
-    if (text.startsWith('```json')) {
+    console.log("[Gemini Raw Text]:", text);
+
+    // --- 核心增强：智能 JSON 提取 ---
+    // 寻找第一个 '[' 和最后一个 ']'
+    // 这样可以忽略掉 AI 可能输出的 "Okay, here is the JSON: [...]" 等前缀
+    const start = text.indexOf('[');
+    const end = text.lastIndexOf(']');
+
+    if (start !== -1 && end !== -1 && end > start) {
+      text = text.substring(start, end + 1);
+    } else {
+      // 如果没找到数组，尝试清理 Markdown 后硬解析，作为兜底
+      if (text.startsWith('```json')) {
         text = text.replace(/^```json/, '').replace(/```$/, '');
-    } else if (text.startsWith('```')) {
+      } else if (text.startsWith('```')) {
         text = text.replace(/^```/, '').replace(/```$/, '');
+      }
+      text = text.trim();
     }
     
     return JSON.parse(text) as ScheduleItem[];
@@ -130,7 +143,6 @@ export const generateSmartFill = async (
   } catch (error: any) {
     console.error("Gemini Smart Fill Error:", error);
     const friendlyMsg = handleApiError(error);
-    // SmartFill 需要抛出异常或返回空数组，这里我们弹窗提示后返回空
     if (friendlyMsg) alert(friendlyMsg);
     throw error;
   }
@@ -155,5 +167,9 @@ function handleApiError(error: any): string {
     return `❌ 网络连接失败。\n\n无法连接到: ${CUSTOM_BASE_URL}\n请检查网络或代理地址。`;
   }
   
+  if (errStr.includes("JSON")) {
+    return "⚠️ AI 返回格式异常。\nAI 没有返回有效的 JSON 数据，请重试或简化指令。";
+  }
+
   return `AI 服务错误: ${errStr.substring(0, 100)}...`;
 }
