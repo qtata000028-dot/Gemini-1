@@ -67,7 +67,7 @@ export const MasterGrid: React.FC<MasterGridProps> = ({
   // Helper for frozen bottom header cells (Individual Columns)
   const FrozenThBottom = ({ left, width, children, isLast = false }: { left: number, width: number, children: React.ReactNode, isLast?: boolean }) => (
     <th 
-      className={`sticky z-[60] bg-slate-50 border-b border-slate-300 text-slate-500 font-semibold text-[11px] tracking-wide text-center ${isLast ? 'border-r-2 border-r-slate-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]' : 'border-r border-slate-200'}`}
+      className={`sticky z-[60] bg-slate-100 border-b border-slate-300 text-slate-600 font-semibold text-[11px] tracking-wide text-center ${isLast ? 'border-r-2 border-r-slate-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]' : 'border-r border-slate-200'}`}
       style={{ 
         left: `${left}px`, 
         width: `${width}px`, 
@@ -109,7 +109,7 @@ export const MasterGrid: React.FC<MasterGridProps> = ({
           <thead className="h-16 shadow-sm z-50">
             {/* --- HEADER ROW 1: Group Headers --- */}
             <tr className="h-8">
-              {/* Merged Frozen Header - Using a slightly darker background (slate-200) for better distinction */}
+              {/* Merged Frozen Header - Darker background for distinction */}
               <th 
                 colSpan={4}
                 className="sticky left-0 top-0 z-[60] bg-slate-200 border-b border-slate-300 border-r-2 border-r-slate-300 text-slate-800 font-bold text-xs text-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
