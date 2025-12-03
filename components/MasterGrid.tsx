@@ -109,10 +109,10 @@ export const MasterGrid: React.FC<MasterGridProps> = ({
           <thead className="h-16 shadow-sm z-50">
             {/* --- HEADER ROW 1: Group Headers --- */}
             <tr className="h-8">
-              {/* Merged Frozen Header - Now with colSpan={4} to correctly span the 4 frozen columns */}
+              {/* Merged Frozen Header - Using a slightly darker background (slate-200) for better distinction */}
               <th 
                 colSpan={4}
-                className="sticky left-0 top-0 z-[60] bg-slate-100 border-b border-slate-300 border-r-2 border-r-slate-300 text-slate-700 font-bold text-xs text-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
+                className="sticky left-0 top-0 z-[60] bg-slate-200 border-b border-slate-300 border-r-2 border-r-slate-300 text-slate-800 font-bold text-xs text-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
                 style={{ 
                   width: `${TOTAL_FROZEN_WIDTH}px`,
                   minWidth: `${TOTAL_FROZEN_WIDTH}px`,
@@ -125,7 +125,7 @@ export const MasterGrid: React.FC<MasterGridProps> = ({
               {/* Scrollable Group Headers (Year/Month/Week) */}
               {columns.map((col, idx) => (
                 <th key={`th-top-${idx}`} 
-                    className="sticky top-0 z-50 border-b border-r border-slate-200 bg-slate-50 px-1 text-center text-[11px] font-medium text-slate-500 whitespace-nowrap"
+                    className="sticky top-0 z-50 border-b border-r border-slate-200 bg-slate-100 px-1 text-center text-[11px] font-medium text-slate-600 whitespace-nowrap"
                     style={{ minWidth: viewMode === 'day' ? COL_WIDTHS.dateCol : COL_WIDTHS.weekCol }}
                 >
                   {col.topHeader}
@@ -146,7 +146,7 @@ export const MasterGrid: React.FC<MasterGridProps> = ({
                   const isWeekend = col.bottomHeader.includes('六') || col.bottomHeader.includes('日') || col.bottomHeader.includes('Sat') || col.bottomHeader.includes('Sun');
                   return (
                     <th key={`th-btm-${idx}`} 
-                        className={`sticky top-8 z-50 border-b border-r border-slate-200 px-1 text-center text-[10px] font-medium ${isWeekend ? 'bg-orange-50/50 text-orange-600' : 'bg-slate-50 text-slate-400'}`}
+                        className={`sticky top-8 z-50 border-b border-r border-slate-200 px-1 text-center text-[10px] font-medium ${isWeekend ? 'bg-orange-50/50 text-orange-600' : 'bg-slate-50 text-slate-500'}`}
                     >
                         {col.bottomHeader}
                     </th>
