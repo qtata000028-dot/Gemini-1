@@ -33,6 +33,42 @@ const STICKY_LEFT = {
 
 const TOTAL_FROZEN_WIDTH = COL_WIDTHS.index + COL_WIDTHS.code + COL_WIDTHS.product + COL_WIDTHS.workshop;
 
+// Helper for frozen bottom header cells (Individual Columns) - Moved outside
+const FrozenThBottom: React.FC<{ left: number, width: number, children: React.ReactNode, isLast?: boolean }> = ({ left, width, children, isLast = false }) => (
+  <th 
+    className={`sticky z-[60] bg-slate-100 border-b border-slate-300 text-slate-600 font-semibold text-[11px] tracking-wide text-center ${isLast ? 'border-r-2 border-r-slate-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]' : 'border-r border-slate-200'}`}
+    style={{ 
+      left: `${left}px`, 
+      width: `${width}px`, 
+      minWidth: `${width}px`, 
+      maxWidth: `${width}px`,
+      top: '32px', // Height of the top row
+      height: '32px'
+    }}
+  >
+    <div className="flex items-center justify-center h-full px-2 truncate">
+      {children}
+    </div>
+  </th>
+);
+
+// Helper for frozen body cells - Moved outside
+const FrozenTd: React.FC<{ left: number, width: number, children: React.ReactNode, isSelected: boolean, isLast?: boolean, align?: 'left'|'center'|'right', className?: string }> = ({ left, width, children, isSelected, isLast = false, align = 'left', className = '' }) => (
+  <td 
+    className={`sticky z-40 border-b border-slate-200 text-xs transition-colors duration-150 ${isSelected ? 'bg-blue-50' : 'bg-white group-hover:bg-slate-50'} ${isLast ? 'border-r-2 border-r-slate-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]' : 'border-r border-slate-100'} ${className}`}
+    style={{ 
+      left: `${left}px`, 
+      width: `${width}px`, 
+      minWidth: `${width}px`, 
+      maxWidth: `${width}px` 
+    }}
+  >
+    <div className={`h-full flex items-center px-3 w-full truncate ${align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : 'justify-start'}`}>
+      {children}
+    </div>
+  </td>
+);
+
 export const MasterGrid: React.FC<MasterGridProps> = ({
   data,
   columns,
@@ -63,42 +99,6 @@ export const MasterGrid: React.FC<MasterGridProps> = ({
     });
     return lastIndex;
   };
-
-  // Helper for frozen bottom header cells (Individual Columns)
-  const FrozenThBottom = ({ left, width, children, isLast = false }: { left: number, width: number, children: React.ReactNode, isLast?: boolean }) => (
-    <th 
-      className={`sticky z-[60] bg-slate-100 border-b border-slate-300 text-slate-600 font-semibold text-[11px] tracking-wide text-center ${isLast ? 'border-r-2 border-r-slate-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]' : 'border-r border-slate-200'}`}
-      style={{ 
-        left: `${left}px`, 
-        width: `${width}px`, 
-        minWidth: `${width}px`, 
-        maxWidth: `${width}px`,
-        top: '32px', // Height of the top row
-        height: '32px'
-      }}
-    >
-      <div className="flex items-center justify-center h-full px-2 truncate">
-        {children}
-      </div>
-    </th>
-  );
-
-  // Helper for frozen body cells
-  const FrozenTd = ({ left, width, children, isSelected, isLast = false, align = 'left', className = '' }: { left: number, width: number, children: React.ReactNode, isSelected: boolean, isLast?: boolean, align?: 'left'|'center'|'right', className?: string }) => (
-    <td 
-      className={`sticky z-40 border-b border-slate-200 text-xs transition-colors duration-150 ${isSelected ? 'bg-blue-50' : 'bg-white group-hover:bg-slate-50'} ${isLast ? 'border-r-2 border-r-slate-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]' : 'border-r border-slate-100'} ${className}`}
-      style={{ 
-        left: `${left}px`, 
-        width: `${width}px`, 
-        minWidth: `${width}px`, 
-        maxWidth: `${width}px` 
-      }}
-    >
-      <div className={`h-full flex items-center px-3 w-full truncate ${align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : 'justify-start'}`}>
-        {children}
-      </div>
-    </td>
-  );
 
   return (
     <div className="flex-1 bg-white flex flex-col min-h-0 overflow-hidden relative shadow-inner">

@@ -239,7 +239,8 @@ export default function App() {
 
     try {
       const contextData = masterData.slice(0, 10).map(r => {
-        const total = Object.values(r.planData).reduce((a, b) => a + Number(b), 0);
+        // Explicitly type accumulator to avoid 'unknown' type error in reduce
+        const total = Object.values(r.planData).reduce((a: number, b) => a + Number(b), 0);
         return `ID:${r.code}, 产品:${r.productName}, 车间:${r.workshop}, 总数量:${total}, 状态:${r.status}`;
       }).join('\n');
 
@@ -540,7 +541,7 @@ export default function App() {
                                     <div className="flex-1 relative">
                                         <input 
                                             type="number" 
-                                            className="w-full text-right text-sm border-transparent bg-transparent rounded px-2 py-1 focus:bg-white focus:border-blue-300 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 font-bold text-slate-800 transition-all hover:bg-slate-100"
+                                            className="w-full text-right text-sm border-transparent bg-transparent rounded px-2 py-1 focus:bg-white focus:border-blue-300 focus:border-blue-300 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 font-bold text-slate-800 transition-all hover:bg-slate-100"
                                             value={item.value}
                                             onChange={(e) => handleCellChange(selectedRowId, item.date, e.target.value)}
                                         />
