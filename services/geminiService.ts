@@ -1,18 +1,34 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Access the key injected by Vite at build time
-const apiKey = process.env.API_KEY || '';
+// ==================================================================================
+// 🔧 自定义配置区域
+// ==================================================================================
 
-// Initialize client lazily or handle empty key gracefully
+// 1. 在这里填入您的 API Key (支持官方 Key 或 第三方中转 Key)
+const CUSTOM_API_KEY = "sk-hLE0UQVwjBkiwB4Bi73qrsjTVBdHswS0YPrJCGNSHvMtgn5v"; 
+
+// 2. 在这里填入自定义 Base URL (例如您的中转服务地址)
+// 注意：不要带末尾的斜杠，SDK 会自动处理路径
+const CUSTOM_BASE_URL = "https://ccapi.aiclaude.club";
+
+// ==================================================================================
+
+// 优先使用硬编码的 Key，如果没有则尝试读取环境变量
+const apiKey = CUSTOM_API_KEY || process.env.API_KEY || '';
+
+// Initialize client
 const getAiClient = () => {
   if (!apiKey) {
     throw new Error("MISSING_KEY");
   }
-  // Check for common wrong key formats (e.g. OpenAI style keys or third-party proxy keys)
-  if (apiKey.startsWith("sk-")) {
-    throw new Error("INVALID_KEY_FORMAT_SK");
-  }
-  return new GoogleGenAI({ apiKey });
+  
+  // 初始化 SDK，传入 apiKey 和 baseUrl
+  // @google/genai SDK 支持通过 baseUrl 参数指定请求地址
+  return new GoogleGenAI({ 
+    apiKey: apiKey,
+  }, {
+    baseUrl: CUSTOM_BASE_URL // 设置请求的基础地址
+  });
 };
 
 export const generateDailyReport = async (contextData: string): Promise<string> => {
@@ -44,15 +60,15 @@ export const generateDailyReport = async (contextData: string): Promise<string> 
     const errStr = JSON.stringify(error) + (error.message || '');
 
     if (error.message === "MISSING_KEY") {
-      return "⚠️ 配置错误：未检测到 API Key。\n\n请在 Vercel 项目设置 (Settings -> Environment Variables) 中，将变量名设置为 `API_KEY` (注意大写)，而不是其他名字。";
-    }
-
-    if (error.message === "INVALID_KEY_FORMAT_SK") {
-      return "⚠️ 密钥格式错误：检测到以 'sk-' 开头的密钥。\n\n本项目使用 Google 官方原生接口，不支持第三方中转 Key (OpenAI 格式)。\n请访问 aistudio.google.com 申请免费的官方 Key (以 'AIza' 开头)。";
+      return "⚠️ 错误：未检测到 API Key。\n\n请在 services/geminiService.ts 文件中填入您的 CUSTOM_API_KEY。";
     }
 
     if (errStr.includes("429") || errStr.includes("RESOURCE_EXHAUSTED")) {
-      return "⚠️ 请求过于频繁 (429 Rate Limit)。\n\nGoogle 免费版 API 限制了每分钟调用次数（约 15 次/分钟）。\n请稍等 1-2 分钟后再试，或者减少点击频率。";
+      return "⚠️ 请求过于频繁 (429 Rate Limit)。\n\n您的 API Key 配额已耗尽或触发频率限制。\n请稍等片刻后再试。";
+    }
+
+    if (errStr.includes("Failed to fetch") || errStr.includes("NetworkError")) {
+      return `❌ 网络连接失败。\n\n当前连接地址: ${CUSTOM_BASE_URL || '默认 Google 地址'}\n请检查您的代理地址是否正确，或网络是否通畅。`;
     }
     
     return `AI 服务暂时不可用 (${error.message || '未知错误'})。`;
@@ -112,15 +128,15 @@ export const generateSmartFill = async (
     const errStr = JSON.stringify(error) + (error.message || '');
 
     if (error.message === "MISSING_KEY") {
-      alert("⚠️ 错误：未配置 API Key。\n请在 Vercel 后台将变量名修改为 `API_KEY`。");
-      throw error;
-    }
-    if (error.message === "INVALID_KEY_FORMAT_SK") {
-      alert("⚠️ 密钥错误：不能使用 'sk-' 开头的第三方 Key。\n请使用 Google 官方 'AIza' 开头的 Key。");
+      alert("⚠️ 错误：请在 services/geminiService.ts 中配置您的 API Key。");
       throw error;
     }
     if (errStr.includes("429") || errStr.includes("RESOURCE_EXHAUSTED")) {
-      alert("⚠️ 请求过于频繁 (429)。\n\nGoogle 免费版 API 限制了调用频率。\n请稍等 1-2 分钟后再尝试生成。");
+      alert("⚠️ 请求过于频繁 (429)。\n请稍后再试。");
+      throw error;
+    }
+    if (errStr.includes("Failed to fetch") || errStr.includes("NetworkError")) {
+      alert(`❌ 网络错误。\n无法连接到: ${CUSTOM_BASE_URL}`);
       throw error;
     }
     throw error;
