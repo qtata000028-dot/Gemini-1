@@ -22,12 +22,11 @@ const getAiClient = () => {
     throw new Error("MISSING_KEY");
   }
   
-  // 初始化 SDK，传入 apiKey 和 baseUrl
-  // @google/genai SDK 支持通过 baseUrl 参数指定请求地址
+  // 初始化 SDK
+  // 修复：apiKey 和 baseUrl 必须在同一个配置对象中传入
   return new GoogleGenAI({ 
     apiKey: apiKey,
-  }, {
-    baseUrl: CUSTOM_BASE_URL // 设置请求的基础地址
+    baseUrl: CUSTOM_BASE_URL // 设置请求的基础地址，确保走代理
   });
 };
 
